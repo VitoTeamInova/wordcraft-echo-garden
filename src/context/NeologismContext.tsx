@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Neologism, Category, NeologismStatus } from '../types/neologism';
 
 // Sample Categories
@@ -75,6 +74,7 @@ interface NeologismContextType {
   addNeologism: (neologism: Omit<Neologism, 'id' | 'createdAt'>) => void;
   addCategory: (category: string) => void;
   updateNeologismStatus: (id: string, status: NeologismStatus) => void;
+  updateNeologism: (neologism: Neologism) => void;
   searchNeologisms: (query: string) => Neologism[];
   filterByCategory: (categoryId: string) => Neologism[];
   getRandomNeologism: () => Neologism | null;
@@ -126,6 +126,14 @@ export function NeologismProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const updateNeologism = (updatedNeologism: Neologism) => {
+    setNeologisms(prevNeologisms =>
+      prevNeologisms.map(neologism =>
+        neologism.id === updatedNeologism.id ? updatedNeologism : neologism
+      )
+    );
+  };
+
   const searchNeologisms = (query: string): Neologism[] => {
     if (!query) return neologisms;
     
@@ -156,6 +164,7 @@ export function NeologismProvider({ children }: { children: ReactNode }) {
     addNeologism,
     addCategory,
     updateNeologismStatus,
+    updateNeologism,
     searchNeologisms,
     filterByCategory,
     getRandomNeologism,
