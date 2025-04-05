@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Edit, Save, ArrowLeft } from 'lucide-react';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 export const NeologismDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -193,12 +194,14 @@ export const NeologismDetail = () => {
         
         <CardContent className="py-4 space-y-4">
           {neologism.imageUrl && (
-            <div className="mb-4">
-              <img 
-                src={neologism.imageUrl} 
-                alt={neologism.name} 
-                className="w-full max-h-64 object-cover rounded-md" 
-              />
+            <div className="mb-4 w-1/4 mx-auto">
+              <AspectRatio ratio={16 / 9}>
+                <img 
+                  src={neologism.imageUrl} 
+                  alt={neologism.name} 
+                  className="w-full h-full object-cover rounded-md" 
+                />
+              </AspectRatio>
             </div>
           )}
           
