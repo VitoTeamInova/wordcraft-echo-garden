@@ -36,7 +36,7 @@ export function FeaturedNeologism() {
       <CardContent>
         <div className="flex flex-col md:flex-row gap-6">
           {featured.imageUrl && (
-            <div className="md:w-1/5 mx-auto">
+            <div className="md:w-1/5">
               <AspectRatio ratio={16 / 9}>
                 <img 
                   src={featured.imageUrl} 

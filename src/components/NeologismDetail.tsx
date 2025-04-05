@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Edit, Save, ArrowLeft } from 'lucide-react';
+import { Edit, Save, ArrowLeft, ImageIcon } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 export const NeologismDetail = () => {
@@ -194,7 +194,7 @@ export const NeologismDetail = () => {
         
         <CardContent className="py-4 space-y-4">
           {neologism.imageUrl && (
-            <div className="mb-4 w-1/4 mx-auto">
+            <div className="mb-4 w-1/4">
               <AspectRatio ratio={16 / 9}>
                 <img 
                   src={neologism.imageUrl} 
@@ -206,6 +206,33 @@ export const NeologismDetail = () => {
           )}
           
           <div className="space-y-4">
+            {isEditing && (
+              <div>
+                <Label className="text-sm font-medium">Image URL (optional)</Label>
+                <Input 
+                  name="imageUrl"
+                  value={formData.imageUrl || ''}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/image.jpg"
+                  className="mt-1"
+                />
+                {formData.imageUrl && (
+                  <div className="mt-2 w-1/4">
+                    <AspectRatio ratio={16 / 9}>
+                      <img 
+                        src={formData.imageUrl} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover rounded-md"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://placehold.co/600x400?text=Invalid+Image+URL';
+                        }}
+                      />
+                    </AspectRatio>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <div>
               <Label className="text-sm font-medium">Root Words</Label>
               {isEditing ? (
