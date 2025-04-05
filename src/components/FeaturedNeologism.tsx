@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useNeologism } from '@/context/NeologismContext';
 import { Neologism } from '@/types/neologism';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 export function FeaturedNeologism() {
   const { getRandomNeologism } = useNeologism();
@@ -35,15 +36,17 @@ export function FeaturedNeologism() {
       <CardContent>
         <div className="flex flex-col md:flex-row gap-6">
           {featured.imageUrl && (
-            <div className="md:w-1/3">
-              <img 
-                src={featured.imageUrl} 
-                alt={featured.name} 
-                className="rounded-md object-cover w-full h-32 md:h-full"
-              />
+            <div className="md:w-1/5 mx-auto">
+              <AspectRatio ratio={16 / 9}>
+                <img 
+                  src={featured.imageUrl} 
+                  alt={featured.name} 
+                  className="rounded-md object-cover w-full h-full"
+                />
+              </AspectRatio>
             </div>
           )}
-          <div className={featured.imageUrl ? "md:w-2/3" : "w-full"}>
+          <div className={featured.imageUrl ? "md:w-4/5" : "w-full"}>
             <p className="text-slate-700 leading-relaxed">{featured.definition}</p>
           </div>
         </div>
