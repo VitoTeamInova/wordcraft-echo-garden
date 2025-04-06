@@ -120,26 +120,41 @@ export const NeologismDetail = () => {
       </Button>
       
       <Card className="border-l-4 border-l-neologism-accent">
-        <CardHeader className="flex flex-row items-center justify-between py-4">
-          <div>
-            {isEditing ? (
-              <Input 
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="text-xl font-bold" 
-              />
-            ) : (
-              <CardTitle className="text-2xl">{neologism.name}</CardTitle>
-            )}
-            <div className="flex items-center space-x-2 mt-1 text-sm text-muted-foreground">
-              <Badge variant="outline" className="text-xs border-neologism-accent text-neologism-accent">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <div>
+              {isEditing ? (
+                <Input 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="text-xl font-bold" 
+                />
+              ) : (
+                <CardTitle className="text-2xl md:text-3xl text-neologism-primary">{neologism.name}</CardTitle>
+              )}
+              
+              <div className="text-slate-600 mt-1">
+                {isEditing ? (
+                  <Input 
+                    value={rootWordsInput}
+                    onChange={handleRootWordsChange}
+                    placeholder="Separate words with commas (max 3)"
+                  />
+                ) : (
+                  <span>{neologism.rootWords.join(' + ')}</span>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="border-neologism-accent text-neologism-accent">
                 {isEditing ? (
                   <Select 
                     value={formData.categoryId} 
                     onValueChange={handleCategoryChange}
                   >
-                    <SelectTrigger className="w-full border-none p-0 h-auto">
+                    <SelectTrigger className="border-none p-0 h-auto">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -154,14 +169,14 @@ export const NeologismDetail = () => {
                   neologism.category
                 )}
               </Badge>
-              <span>•</span>
+              
               <Badge variant={neologism.status === 'Ready' ? 'default' : 'secondary'}>
                 {isEditing ? (
                   <Select 
                     value={formData.status} 
                     onValueChange={(value) => handleStatusChange(value as NeologismStatus)}
                   >
-                    <SelectTrigger className="w-full border-none p-0 h-auto">
+                    <SelectTrigger className="border-none p-0 h-auto">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -174,84 +189,40 @@ export const NeologismDetail = () => {
                   neologism.status
                 )}
               </Badge>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleEditMode}
+                className="ml-auto"
+              >
+                {isEditing ? (
+                  <>Cancel</>
+                ) : (
+                  <><Edit className="h-4 w-4 mr-1" /> Edit</>
+                )}
+              </Button>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={toggleEditMode}
-            className="ml-auto"
-          >
-            {isEditing ? (
-              <>Cancel</>
-            ) : (
-              <><Edit className="h-4 w-4 mr-1" /> Edit</>
-            )}
-          </Button>
         </CardHeader>
         
         <Separator />
         
         <CardContent className="py-4 space-y-4">
-          {neologism.imageUrl && (
-            <div className="mb-4 w-1/4">
-              <AspectRatio ratio={16 / 9}>
-                <img 
-                  src={neologism.imageUrl} 
-                  alt={neologism.name} 
-                  className="w-full h-full object-cover rounded-md" 
-                />
-              </AspectRatio>
-            </div>
-          )}
-          
-          <div className="space-y-4">
-            {isEditing && (
-              <div>
-                <Label className="text-sm font-medium">Image URL (optional)</Label>
-                <Input 
-                  name="imageUrl"
-                  value={formData.imageUrl || ''}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com/image.jpg"
-                  className="mt-1"
-                />
-                {formData.imageUrl && (
-                  <div className="mt-2 w-1/4">
-                    <AspectRatio ratio={16 / 9}>
-                      <img 
-                        src={formData.imageUrl} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover rounded-md"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://placehold.co/600x400?text=Invalid+Image+URL';
-                        }}
-                      />
-                    </AspectRatio>
-                  </div>
-                )}
+          <div className="flex flex-col md:flex-row gap-6">
+            {!isEditing && neologism.imageUrl && (
+              <div className="md:w-1/5">
+                <AspectRatio ratio={16 / 9}>
+                  <img 
+                    src={neologism.imageUrl} 
+                    alt={neologism.name} 
+                    className="rounded-md object-cover w-full h-full"
+                  />
+                </AspectRatio>
               </div>
             )}
             
-            <div>
-              <Label className="text-sm font-medium">Root Words</Label>
-              {isEditing ? (
-                <Input 
-                  value={rootWordsInput}
-                  onChange={handleRootWordsChange}
-                  placeholder="Separate words with commas (max 3)"
-                />
-              ) : (
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {neologism.rootWords.map((word, idx) => (
-                    <Badge key={idx} variant="secondary">{word}</Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <div>
-              <Label className="text-sm font-medium">Definition</Label>
+            <div className={!isEditing && neologism.imageUrl ? "md:w-4/5" : "w-full"}>
               {isEditing ? (
                 <Textarea 
                   name="definition"
@@ -260,16 +231,43 @@ export const NeologismDetail = () => {
                   className="min-h-[100px]"
                 />
               ) : (
-                <p className="mt-1 text-sm leading-relaxed">{neologism.definition}</p>
+                <p className="text-slate-700 leading-relaxed">{neologism.definition}</p>
               )}
             </div>
-            
-            <div>
-              <Label className="text-sm font-medium">Created</Label>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {new Date(neologism.createdAt).toLocaleDateString()}
-              </p>
+          </div>
+          
+          {isEditing && (
+            <div className="mt-6">
+              <Label className="text-sm font-medium">Image URL (optional)</Label>
+              <Input 
+                name="imageUrl"
+                value={formData.imageUrl || ''}
+                onChange={handleInputChange}
+                placeholder="https://example.com/image.jpg"
+                className="mt-1"
+              />
+              {formData.imageUrl && (
+                <div className="mt-2 w-1/4">
+                  <AspectRatio ratio={16 / 9}>
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover rounded-md"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://placehold.co/600x400?text=Invalid+Image+URL';
+                      }}
+                    />
+                  </AspectRatio>
+                </div>
+              )}
             </div>
+          )}
+          
+          <div>
+            <Label className="text-sm font-medium">Created</Label>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {new Date(neologism.createdAt).toLocaleDateString()}
+            </p>
           </div>
         </CardContent>
         
