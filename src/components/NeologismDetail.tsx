@@ -176,7 +176,7 @@ export const NeologismDetail = () => {
                     value={formData.status} 
                     onValueChange={(value) => handleStatusChange(value as NeologismStatus)}
                   >
-                    <SelectTrigger className="border-none p-0 h-auto">
+                    <SelectTrigger className="border-none p-0 h-auto bg-white text-black min-w-[80px]">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>

@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -37,6 +37,24 @@ export function AddNeologismModal() {
   
   const closeRef = useRef<HTMLButtonElement>(null);
 
+  // Reset form when dialog is closed
+  useEffect(() => {
+    if (!open) {
+      resetForm();
+    }
+  }, [open]);
+
+  const resetForm = () => {
+    setName('');
+    setRootWords([]);
+    setCurrentRootWord('');
+    setCategoryId('');
+    setDefinition('');
+    setImageUrl('');
+    setNewCategory('');
+    setShowNewCategoryInput(false);
+  };
+
   const handleAddRootWord = () => {
     if (!currentRootWord.trim()) return;
     if (rootWords.length >= 3) {
@@ -59,12 +77,18 @@ export function AddNeologismModal() {
     if (!newCategory.trim()) return;
     
     addCategory(newCategory.trim());
+    
+    // Find the newly created category id
+    // We'll get the last category from the categories array after the addCategory call
+    setTimeout(() => {
+      const lastCategory = categories[categories.length - 1];
+      if (lastCategory) {
+        setCategoryId(lastCategory.id);
+      }
+    }, 0);
+    
     setNewCategory('');
     setShowNewCategoryInput(false);
-    
-    // Get the new category id (this is a bit hacky but works for demo purposes)
-    const newCatId = Date.now().toString();
-    setCategoryId(newCatId);
     
     toast({
       title: "Category added",
@@ -82,24 +106,20 @@ export function AddNeologismModal() {
       return;
     }
 
+    const category = categories.find(cat => cat.id === categoryId);
+    
     addNeologism({
       name,
       rootWords,
       categoryId,
+      category: category?.name,
       definition,
       imageUrl: imageUrl || undefined,
       status: "Draft"
     });
 
-    // Reset form
-    setName('');
-    setRootWords([]);
-    setCurrentRootWord('');
-    setCategoryId('');
-    setDefinition('');
-    setImageUrl('');
-    
-    // Close dialog
+    // Reset form and close dialog
+    resetForm();
     setOpen(false);
     
     toast({
