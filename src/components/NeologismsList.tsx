@@ -43,6 +43,12 @@ export function NeologismsList({ neologisms }: NeologismsListProps) {
                   <Badge variant="outline" className="text-xs border-neologism-accent text-neologism-accent mr-2">
                     {neologism.category}
                   </Badge>
+                  <Badge 
+                    variant={neologism.status === 'Ready' ? 'default' : 'secondary'} 
+                    className="text-xs mr-2"
+                  >
+                    {neologism.status}
+                  </Badge>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
               </div>

@@ -1,30 +1,41 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { FeaturedNeologism } from '@/components/FeaturedNeologism';
 import { AddNeologismModal } from '@/components/AddNeologismModal';
 import { SearchAndFilter } from '@/components/SearchAndFilter';
 import { NeologismsList } from '@/components/NeologismsList';
 import { useNeologism } from '@/context/NeologismContext';
-import { Neologism } from '@/types/neologism';
+import { Neologism, NeologismStatus } from '@/types/neologism';
 
 const Index = () => {
-  const { neologisms, searchNeologisms, filterByCategory } = useNeologism();
+  const { neologisms, searchNeologisms, filterByCategory, filterByStatus, getLatestNeologism } = useNeologism();
   const [filteredNeologisms, setFilteredNeologisms] = useState<Neologism[]>(neologisms);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
+  // Initialize neologisms on page load
+  useEffect(() => {
+    setFilteredNeologisms(neologisms);
+  }, [neologisms]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    applyFilters(query, selectedCategory);
+    applyFilters(query, selectedCategory, selectedStatus);
   };
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
-    applyFilters(searchQuery, categoryId);
+    applyFilters(searchQuery, categoryId, selectedStatus);
   };
 
-  const applyFilters = (query: string, categoryId: string) => {
+  const handleStatusChange = (status: string) => {
+    setSelectedStatus(status);
+    applyFilters(searchQuery, selectedCategory, status);
+  };
+
+  const applyFilters = (query: string, categoryId: string, status: string) => {
     let results = neologisms;
     
     if (query) {
@@ -33,6 +44,10 @@ const Index = () => {
     
     if (categoryId && categoryId !== 'all') {
       results = results.filter(neologism => neologism.categoryId === categoryId);
+    }
+    
+    if (status && status !== 'all') {
+      results = results.filter(neologism => neologism.status === status);
     }
     
     setFilteredNeologisms(results);
@@ -59,7 +74,8 @@ const Index = () => {
           <div className="space-y-4">
             <SearchAndFilter 
               onSearch={handleSearch} 
-              onCategoryChange={handleCategoryChange} 
+              onCategoryChange={handleCategoryChange}
+              onStatusChange={handleStatusChange}
             />
             <NeologismsList neologisms={filteredNeologisms} />
           </div>

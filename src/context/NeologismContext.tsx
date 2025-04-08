@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Neologism, Category, NeologismStatus } from '../types/neologism';
 
 // Sample Categories
@@ -68,6 +69,37 @@ const initialNeologisms: Neologism[] = [
   },
 ];
 
+// Try to load neologisms from localStorage
+const loadNeologismsFromStorage = (): Neologism[] => {
+  try {
+    const storedNeologisms = localStorage.getItem('neologisms');
+    if (storedNeologisms) {
+      const parsed = JSON.parse(storedNeologisms);
+      // Convert string dates back to Date objects
+      return parsed.map((n: any) => ({
+        ...n,
+        createdAt: new Date(n.createdAt)
+      }));
+    }
+  } catch (error) {
+    console.error('Error loading neologisms from storage:', error);
+  }
+  return initialNeologisms;
+};
+
+// Try to load categories from localStorage
+const loadCategoriesFromStorage = (): Category[] => {
+  try {
+    const storedCategories = localStorage.getItem('categories');
+    if (storedCategories) {
+      return JSON.parse(storedCategories);
+    }
+  } catch (error) {
+    console.error('Error loading categories from storage:', error);
+  }
+  return initialCategories;
+};
+
 interface NeologismContextType {
   neologisms: Neologism[];
   categories: Category[];
@@ -77,7 +109,9 @@ interface NeologismContextType {
   updateNeologism: (neologism: Neologism) => void;
   searchNeologisms: (query: string) => Neologism[];
   filterByCategory: (categoryId: string) => Neologism[];
+  filterByStatus: (status: string) => Neologism[];
   getRandomNeologism: () => Neologism | null;
+  getLatestNeologism: () => Neologism | null;
 }
 
 const NeologismContext = createContext<NeologismContextType | undefined>(undefined);
@@ -91,23 +125,43 @@ export function useNeologism() {
 }
 
 export function NeologismProvider({ children }: { children: ReactNode }) {
-  const [neologisms, setNeologisms] = useState<Neologism[]>(initialNeologisms);
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [neologisms, setNeologisms] = useState<Neologism[]>(loadNeologismsFromStorage());
+  const [categories, setCategories] = useState<Category[]>(loadCategoriesFromStorage());
+  const [latestNeologismId, setLatestNeologismId] = useState<string | null>(null);
+
+  // Save to localStorage whenever neologisms or categories change
+  useEffect(() => {
+    try {
+      localStorage.setItem('neologisms', JSON.stringify(neologisms));
+    } catch (error) {
+      console.error('Error saving neologisms to storage:', error);
+    }
+  }, [neologisms]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('categories', JSON.stringify(categories));
+    } catch (error) {
+      console.error('Error saving categories to storage:', error);
+    }
+  }, [categories]);
 
   const addNeologism = (neologism: Omit<Neologism, 'id' | 'createdAt'>) => {
+    const newId = Date.now().toString();
     const newNeologism = {
       ...neologism,
-      id: Date.now().toString(),
+      id: newId,
       createdAt: new Date(),
     };
     
     // Find the category name from id
     const category = categories.find(cat => cat.id === neologism.categoryId);
-    if (category) {
+    if (category && !newNeologism.category) {
       newNeologism.category = category.name;
     }
     
-    setNeologisms(prevNeologisms => [...prevNeologisms, newNeologism]);
+    setNeologisms(prevNeologisms => [newNeologism, ...prevNeologisms]);
+    setLatestNeologismId(newId);
   };
 
   const addCategory = (categoryName: string) => {
@@ -150,12 +204,30 @@ export function NeologismProvider({ children }: { children: ReactNode }) {
     return neologisms.filter(neologism => neologism.categoryId === categoryId);
   };
 
+  const filterByStatus = (status: string): Neologism[] => {
+    if (!status || status === 'all') return neologisms;
+    return neologisms.filter(neologism => neologism.status === status);
+  };
+
   const getRandomNeologism = (): Neologism | null => {
+    // If we have a latest neologism, prioritize it
+    if (latestNeologismId) {
+      const latest = neologisms.find(n => n.id === latestNeologismId);
+      if (latest) return latest;
+    }
+    
     const readyNeologisms = neologisms.filter(n => n.status === 'Ready');
     if (readyNeologisms.length === 0) return null;
     
     const randomIndex = Math.floor(Math.random() * readyNeologisms.length);
     return readyNeologisms[randomIndex];
+  };
+
+  const getLatestNeologism = (): Neologism | null => {
+    if (neologisms.length === 0) return null;
+    
+    // Return the most recently added neologism
+    return neologisms[0];
   };
 
   const value = {
@@ -167,7 +239,9 @@ export function NeologismProvider({ children }: { children: ReactNode }) {
     updateNeologism,
     searchNeologisms,
     filterByCategory,
+    filterByStatus,
     getRandomNeologism,
+    getLatestNeologism,
   };
 
   return (
