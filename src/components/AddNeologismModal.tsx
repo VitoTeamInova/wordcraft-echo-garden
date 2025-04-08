@@ -76,24 +76,23 @@ export function AddNeologismModal() {
   const handleCreateCategory = () => {
     if (!newCategory.trim()) return;
     
+    // Add the new category
     addCategory(newCategory.trim());
-    
-    // Find the newly created category id
-    // We'll get the last category from the categories array after the addCategory call
-    setTimeout(() => {
-      const lastCategory = categories[categories.length - 1];
-      if (lastCategory) {
-        setCategoryId(lastCategory.id);
-      }
-    }, 0);
-    
-    setNewCategory('');
-    setShowNewCategoryInput(false);
-    
     toast({
       title: "Category added",
       description: `New category "${newCategory.trim()}" has been created.`
     });
+    
+    // Find the newly created category
+    setTimeout(() => {
+      const updatedCategories = categories;
+      const newlyAddedCategory = updatedCategories[updatedCategories.length - 1];
+      if (newlyAddedCategory) {
+        setCategoryId(newlyAddedCategory.id);
+      }
+      setNewCategory('');
+      setShowNewCategoryInput(false);
+    }, 100);
   };
 
   const handleSubmit = () => {
@@ -106,13 +105,23 @@ export function AddNeologismModal() {
       return;
     }
 
-    const category = categories.find(cat => cat.id === categoryId);
+    // Find the selected category by ID
+    const selectedCategory = categories.find(cat => cat.id === categoryId);
+    if (!selectedCategory) {
+      toast({
+        title: "Invalid category",
+        description: "Please select a valid category.",
+        variant: "destructive"
+      });
+      return;
+    }
     
+    // Add the neologism with the proper category
     addNeologism({
       name,
       rootWords,
       categoryId,
-      category: category?.name,
+      category: selectedCategory.name,
       definition,
       imageUrl: imageUrl || undefined,
       status: "Draft"
@@ -143,15 +152,7 @@ export function AddNeologismModal() {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="name">Neologism Name</Label>
-            <Input
-              id="name"
-              placeholder="Enter the neologism"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+          {/* Root Words input - moved to the top */}
           <div className="grid gap-2">
             <Label htmlFor="rootWords">Root Words (Max 3)</Label>
             <div className="flex gap-2">
@@ -183,6 +184,18 @@ export function AddNeologismModal() {
               ))}
             </div>
           </div>
+          
+          {/* Neologism Name - moved after root words */}
+          <div className="grid gap-2">
+            <Label htmlFor="name">Neologism Name</Label>
+            <Input
+              id="name"
+              placeholder="Enter the neologism"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          
           <div className="grid gap-2">
             <Label htmlFor="category">Category</Label>
             {showNewCategoryInput ? (
