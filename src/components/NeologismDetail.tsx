@@ -76,10 +76,10 @@ export const NeologismDetail = () => {
 
     const rootWords = rootWordsInput.split(',').map(word => word.trim());
     
-    if (rootWords.length > 3) {
+    if (rootWords.length > 4) { // Changed from 3 to 4
       toast({
         title: "Error",
-        description: "Maximum 3 root words allowed",
+        description: "Maximum 4 root words allowed", // Updated message
         variant: "destructive"
       });
       return;

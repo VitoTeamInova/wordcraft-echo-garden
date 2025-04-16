@@ -57,10 +57,10 @@ export function AddNeologismModal() {
 
   const handleAddRootWord = () => {
     if (!currentRootWord.trim()) return;
-    if (rootWords.length >= 3) {
+    if (rootWords.length >= 4) { // Changed from 3 to 4
       toast({
         title: "Maximum root words reached",
-        description: "A neologism can have at most 3 root words.",
+        description: "A neologism can have at most 4 root words.", // Updated message
         variant: "destructive"
       });
       return;
@@ -154,7 +154,7 @@ export function AddNeologismModal() {
         <div className="grid gap-4 py-4">
           {/* Root Words input - moved to the top */}
           <div className="grid gap-2">
-            <Label htmlFor="rootWords">Root Words (Max 3)</Label>
+            <Label htmlFor="rootWords">Root Words (Max 4)</Label> {/* Changed from 3 to 4 */}
             <div className="flex gap-2">
               <Input
                 id="rootWords"
@@ -168,7 +168,7 @@ export function AddNeologismModal() {
                   }
                 }}
               />
-              <Button type="button" onClick={handleAddRootWord} disabled={rootWords.length >= 3}>
+              <Button type="button" onClick={handleAddRootWord} disabled={rootWords.length >= 4}> {/* Changed from 3 to 4 */}
                 Add
               </Button>
             </div>

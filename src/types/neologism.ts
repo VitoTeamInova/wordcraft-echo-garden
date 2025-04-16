@@ -9,7 +9,7 @@ export type Category = {
 export type Neologism = {
   id: string;
   name: string;
-  rootWords: string[];
+  rootWords: string[]; // Now allows up to 4 elements instead of 3
   categoryId: string;
   category?: string;
   definition: string;
